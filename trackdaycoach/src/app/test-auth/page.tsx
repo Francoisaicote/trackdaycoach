@@ -16,7 +16,7 @@ export default function TestAuth() {
     setMessage('');
     const { error } = await signIn(email, password);
     if (error) {
-      setMessage(`Sign in error: ${error.message}`);
+      setMessage(`Sign in error: ${typeof error === 'string' ? error : 'An error occurred during sign in'}`);
     } else {
       setMessage('Sign in successful!');
     }
@@ -28,7 +28,7 @@ export default function TestAuth() {
     setMessage('');
     const { error } = await signUp(email, password);
     if (error) {
-      setMessage(`Sign up error: ${error.message}`);
+      setMessage(`Sign up error: ${typeof error === 'string' ? error : 'An error occurred during sign up'}`);
     } else {
       setMessage('Sign up successful! Check your email for confirmation.');
     }
