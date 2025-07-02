@@ -112,5 +112,8 @@
     "npm": "8.19.4"
   },
   "gitHead": "68cead182cc24afdc3f1ce7c8ff5853aba14b65a",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "@supabase/supabase-js": "^2.50.2"
+  }
 }

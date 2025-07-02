@@ -1,0 +1,204 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model - handles both instructors and students
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  role      UserRole @default(STUDENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Profile information
+  profile UserProfile?
+
+  // Relationships
+  instructorSessions Session[] @relation("InstructorSessions")
+  studentSessions    Session[] @relation("StudentSessions")
+  feedback          Feedback[]
+  receivedFeedback  Feedback[] @relation("ReceivedFeedback")
+  vehicles          Vehicle[]
+
+  @@map("users")
+}
+
+// User roles
+enum UserRole {
+  INSTRUCTOR
+  STUDENT
+  ADMIN
+}
+
+// User profile with additional information
+model UserProfile {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  bio         String?
+  phone       String?
+  experience  String?
+  specialties String[]
+  avatar      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_profiles")
+}
+
+// Vehicle information
+model Vehicle {
+  id          String   @id @default(cuid())
+  userId      String
+  make        String
+  model       String
+  year        Int
+  color       String?
+  vin         String?
+  modifications String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("vehicles")
+}
+
+// Track information
+model Track {
+  id          String   @id @default(cuid())
+  name        String
+  location    String
+  country     String
+  description String?
+  length      Float?   // in meters
+  turns       Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  sessions Session[]
+
+  @@map("tracks")
+}
+
+// Session model
+model Session {
+  id           String        @id @default(cuid())
+  instructorId String
+  studentId    String
+  trackId      String
+  date         DateTime
+  status       SessionStatus @default(SCHEDULED)
+  notes        String?
+  goals        String[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  // Relationships
+  instructor User    @relation("InstructorSessions", fields: [instructorId], references: [id])
+  student    User    @relation("StudentSessions", fields: [studentId], references: [id])
+  track      Track   @relation(fields: [trackId], references: [id])
+  feedback   Feedback[]
+  laps       Lap[]
+  events     Event[]
+
+  @@map("sessions")
+}
+
+// Session status
+enum SessionStatus {
+  SCHEDULED
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+// Lap data
+model Lap {
+  id        String   @id @default(cuid())
+  sessionId String
+  number    Int
+  time      Float    // in seconds
+  sector1   Float?   // in seconds
+  sector2   Float?   // in seconds
+  sector3   Float?   // in seconds
+  maxSpeed  Float?   // in km/h
+  avgSpeed  Float?   // in km/h
+  createdAt DateTime @default(now())
+
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@map("laps")
+}
+
+// Event data (incidents, flags, etc.)
+model Event {
+  id        String      @id @default(cuid())
+  sessionId String
+  type      EventType
+  timestamp DateTime
+  description String?
+  severity  EventSeverity @default(LOW)
+  createdAt DateTime    @default(now())
+
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@map("events")
+}
+
+// Event types
+enum EventType {
+  FLAG
+  INCIDENT
+  SPIN
+  OFF_TRACK
+  CONTACT
+  MECHANICAL
+  OTHER
+}
+
+// Event severity
+enum EventSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+// Feedback model
+model Feedback {
+  id          String   @id @default(cuid())
+  sessionId   String
+  instructorId String
+  studentId   String
+  content     String
+  type        FeedbackType @default(TEXT)
+  category    String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relationships
+  session     Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  instructor  User    @relation(fields: [instructorId], references: [id])
+  student     User    @relation("ReceivedFeedback", fields: [studentId], references: [id])
+
+  @@map("feedback")
+}
+
+// Feedback types
+enum FeedbackType {
+  TEXT
+  AUDIO
+  VIDEO
+  ANNOTATION
+} 
