@@ -58,7 +58,7 @@ export default function Dashboard() {
               Welcome to your dashboard
             </h1>
             <p className="text-lg">
-              Ready to improve your track performance? Let's find your next instructor.
+              Ready to improve your track performance? Let&apos;s find your next instructor.
             </p>
           </div>
 

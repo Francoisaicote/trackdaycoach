@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     const location = searchParams.get('location');
     const minRating = searchParams.get('minRating');
 
-    let whereClause: any = { 
+    const whereClause: Record<string, unknown> = { 
       isActive: true,
       isVerified: true 
     };

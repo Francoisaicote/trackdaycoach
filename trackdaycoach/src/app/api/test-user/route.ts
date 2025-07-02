@@ -17,7 +17,7 @@ export async function POST() {
       user: data.user,
       session: data.session 
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to create test user' }, { status: 500 });
   }
 } 
