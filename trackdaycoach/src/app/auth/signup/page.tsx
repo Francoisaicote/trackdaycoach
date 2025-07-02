@@ -35,7 +35,7 @@ export default function SignUp() {
     const { error } = await signUp(email, password);
     
     if (error) {
-      setError(error.message);
+      setError(typeof error === 'string' ? error : 'An error occurred during sign up');
     } else {
       setMessage('Check your email for a confirmation link!');
       setTimeout(() => {

@@ -22,7 +22,7 @@ export default function SignIn() {
     const { error } = await signIn(email, password);
     
     if (error) {
-      setError(error.message);
+      setError(typeof error === 'string' ? error : 'An error occurred during sign in');
     } else {
       router.push('/dashboard');
     }
